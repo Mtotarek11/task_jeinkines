@@ -36,8 +36,26 @@ pipeline {
             }
         }
 
-        stage('Approval') {
+        stage('Approval & Notification') {
             steps {
+                script {
+                    // بيجيب لينك الـ Console Output الحالي
+                    def consoleUrl = "${BUILD_URL}console"
+                    
+                    // بيعت إيميل للمسؤول إن فيه Pipeline مستنية موافقة
+                    emailext (
+                        subject: "⏳ Action Required: Terraform Plan for [${params.ENVIRONMENT}] waiting for approval",
+                        body: """
+                        Hello,\n\nA new Terraform deployment for environment <b>${params.ENVIRONMENT}</b> requires your approval.\n\n
+                        You can review the plan output and approve it here:\n
+                        <a href="${consoleUrl}">Click here to view Console Output & Approve</a>\n\n
+                        Build Name: ${JOB_NAME} #${BUILD_NUMBER}
+                        """,
+                        to: "your-email@example.com", // حط إيميلك هنا أو اسحبه ديناميك
+                        mimeType: 'text/html'
+                    )
+                }
+
                 timeout(time: 30, unit: 'MINUTES') {
                     input message: "Do you want to apply changes to the '${params.ENVIRONMENT}' environment?",
                           ok: "Approve"
@@ -54,10 +72,26 @@ pipeline {
 
     post {
         success {
-            echo "🎉 Pipeline completed successfully for environment: ${params.ENVIRONMENT}!"
+            script {
+                def consoleUrl = "${BUILD_URL}console"
+                emailext (
+                    subject: "✅ SUCCESS: Pipeline ${JOB_NAME} [#${BUILD_NUMBER}] - ${params.ENVIRONMENT}",
+                    body: "The pipeline for environment <b>${params.ENVIRONMENT}</b> completed successfully.<br><br>View logs here: <a href='${consoleUrl}'>Console Output</a>",
+                    to: "your-email@example.com",
+                    mimeType: 'text/html'
+                )
+            }
         }
         failure {
-            echo "❌ Pipeline failed during execution in environment: ${params.ENVIRONMENT}."
+            script {
+                def consoleUrl = "${BUILD_URL}console"
+                emailext (
+                    subject: "❌ FAILED: Pipeline ${JOB_NAME} [#${BUILD_NUMBER}] - ${params.ENVIRONMENT}",
+                    body: "The pipeline for environment <b>${params.ENVIRONMENT}</b> has FAILED.<br><br>Check logs here: <a href='${consoleUrl}'>Console Output</a>",
+                    to: "your-email@example.com",
+                    mimeType: 'text/html'
+                )
+            }
         }
         always {
             sh 'rm -f tfplan'
