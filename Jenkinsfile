@@ -77,7 +77,7 @@ pipeline {
                 emailext (
                     subject: "✅ SUCCESS: Pipeline ${JOB_NAME} [#${BUILD_NUMBER}] - ${params.ENVIRONMENT}",
                     body: "The pipeline for environment <b>${params.ENVIRONMENT}</b> completed successfully.<br><br>View logs here: <a href='${consoleUrl}'>Console Output</a>",
-                    to: "your-email@example.com",
+                    to: "mtotarekomran12@gmail.com",
                     mimeType: 'text/html'
                 )
             }
@@ -88,7 +88,7 @@ pipeline {
                 emailext (
                     subject: "❌ FAILED: Pipeline ${JOB_NAME} [#${BUILD_NUMBER}] - ${params.ENVIRONMENT}",
                     body: "The pipeline for environment <b>${params.ENVIRONMENT}</b> has FAILED.<br><br>Check logs here: <a href='${consoleUrl}'>Console Output</a>",
-                    to: "your-email@example.com",
+                    to: "mtotarekomran12@gmail.com",
                     mimeType: 'text/html'
                 )
             }
