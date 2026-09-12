@@ -4,7 +4,7 @@ pipeline {
     parameters {
         choice(
             name: 'ENVIRONMENT',
-            choices: ['dev', 'stg', 'prod'],
+            choices: ['dev', 'prod'],
             description: 'Select the environment workspace to deploy to'
         )
     }
